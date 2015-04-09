@@ -1,38 +1,52 @@
 import qualified Data.Set as S
 import Data.List
+import Control.Monad
 
 type Case = (Int, [String])
+type Solution = Int
 
-readCase :: [String] -> Case
-readCase (n:ts) = let
-		(x:xs) = drop (read n) ts 
-		searches = take (read x) xs
-	in (read n, searches)
 
-readCases :: String -> [Case]
-readCases x = 
-	let (n:ts) = lines x 
-	in 	take (read n) $ map readCase ts
+solve :: Case -> Solution
+solve (n, xs) = count
+	where (_,count,_) = foldl countSwitches (n, 0, S.empty) xs
+
+
+countSwitches (numEng, numSwitch, set) x
+		| needsSwitch = (numEng, numSwitch+1, new_set)
+		| otherwise = (numEng, numSwitch, pool)
+		where
+			needsSwitch = S.size pool == numEng
+			pool = S.insert x set
+			new_set = S.insert x S.empty
+
+
+formatSolution :: Solution -> String
+formatSolution sol = show sol
+
+
+readCase :: IO Case
+readCase = do
+	n <- getLine
+	engs <- replicateM (read n) getLine
+	s <- getLine
+	searches <- replicateM (read s) getLine
+	return (read n, searches)
+
+
+readCases :: IO [Case]
+readCases = do
+	n <- getLine
+	res <- replicateM (read n) readCase
+	return res
+
 
 main = do
-	ts <- readCases `fmap` getContents
-	flip mapM_ (zip [1..] ts) $ \(i, (n, sch)) -> do
-		putStr $ "Case #" ++ show i ++ ": "
-		print $ getSearches' (n, sch)
+	cases <- readCases
+	let	
+		solutions = map solve cases
+		formattedSolutions = map formatSolution solutions
+		output = zipWith (++) prefixes formattedSolutions
+	putStr $ unlines output
 
---main = interact $ show . getSearches . tail . lines
+prefixes = [ "Case #" ++ show n ++ ": " | n <- [1..]]
 
-countSwitches (numEng, numSwitch, set) x = 
-	if S.size pool == numEng then (numEng, numSwitch+1, S.empty) else (numEng, numSwitch, set)
-	where pool = S.insert x set
-
-getSearches :: [String] -> Int
-getSearches input =   
-    let (n:ts) = input
-    	(x:xs) = drop (read n) ts
-        res = take (read x) xs
-        (_, c, _) = foldl countSwitches (read n, 0, S.empty) res
-    in  c
-
-getSearches' :: Case -> Int
-getSearches' (n, xs) = let (_, c, _) = foldl countSwitches (n, 0, S.empty) xs in c
