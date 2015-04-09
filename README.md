@@ -1,2 +1,2 @@
 # haskell
-Learning Haskell via Codejams
+A sandbox area for learning Haskell.
