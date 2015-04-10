@@ -8,20 +8,12 @@ type Solution = Int
 
 
 solve :: Case -> Solution
---solve x = length x - length (solve' 0 x)
---solve x = length x - maximum ( map length (solve' x))
-solve x = maximum (map length (solve' (reverse [snd x | x <- sortBy (compare `on` fst) (zip x [1..])])))
---solve x = reverse [snd x | x <- sortBy (compare `on` fst) (zip x [1..])]
+solve x = length x - (length $ foldl f [] x)
 
-
-f lst (x:xs)
-	| x > lst = x: (f x xs)
-	| otherwise = f lst xs
-f lst _ = []
-
-solve' (x:xs) =	f x (x:xs) : solve' xs
-solve' _ = [[]]
-
+f (x:xs) n
+	| n > x = x:(f xs n)
+	| otherwise = n:xs
+f _ n = [n]
 
 
 formatSolution :: Solution -> String
