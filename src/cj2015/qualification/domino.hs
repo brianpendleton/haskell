@@ -16,10 +16,9 @@ name (area, row, cols)
 func :: Int -> Int -> Int -> (Bool,Bool)
 func d r c = ((eRows && canRows), (eCols && canCols))
 	where
-		definite = d < r && d < c
-		fitRows = d <= r 
-		fitCols = d <= c
+		canRows = d <= r 
 		eRows = mod (mod d r) 2 == 0
+		canCols = d <= c
 		eCols = mod (mod d c) 2 == 0
     
 func2 :: Int -> Int -> Int -> (Bool,Bool,Bool)
